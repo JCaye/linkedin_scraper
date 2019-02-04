@@ -125,18 +125,22 @@ class Company(Scraper):
 
         driver.get(self.linkedin_url)
 
-        _ = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'nav-main__content')))
-        _ = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.XPATH, '//h1[@dir="ltr"]')))
+        about_items = driver.find_elements_by_class_name('org-page-details__definition-term')
+        about_value = driver.find_elements_by_class_name('org-page-details__definition-text')
+        about = {}
+        for item, value in zip(about_items, about_value):
+            about[item.text] = value.text
 
-        self.name = driver.find_element_by_xpath('//h1[@dir="ltr"]').text
-        self.about_us = driver.find_element_by_class_name("org-about-us-organization-description__text").text
+        self.name = driver.find_element_by_xpath('//span[@dir="ltr"]').text
+        self.about_us = driver.find_element_by_class_name("break-words").text
 
-        self.specialties = "\n".join(driver.find_element_by_class_name("org-about-company-module__specialities").text.split(", "))
-        self.website = driver.find_element_by_class_name("org-about-us-company-module__website").text
-        self.headquarters = driver.find_element_by_class_name("org-about-company-module__headquarters").text
-        self.industry = driver.find_element_by_class_name("company-industries").text
-        self.company_size = driver.find_element_by_class_name("org-about-company-module__company-staff-count-range").text
+        self.specialties = "\n".join(about['Specialties'].split(", "))
+        self.website = about['Website']
+        self.headquarters = about['Headquarters']
+        self.industry = about['Industry']
+        self.company_size = about['Company size']
 
+        '''
         driver.execute_script("window.scrollTo(0, Math.ceil(document.body.scrollHeight/2));")
 
 
@@ -168,7 +172,7 @@ class Company(Scraper):
             pass
 
         self.get_employees()
-
+        '''
         if close_on_complete:
             driver.close()
 
